@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloProduto")?>
+
+  </head>
+  <body>
+
+    <div id = "CaixaMsg">
+      <div>
+        <div id = "TituloMsg"></div>
+        <div id = "CorpoMsg"></div>
+        <div id = "RodapeMsg"></div>
+      </div>
+    </div>  
+    
+    <div id = "divObjetos">
+
+      <label id = "labelListaLinha">SIAD</label>
+      <input id="listaLinha" type="text" list="lotes" class="browser-default">
+      <datalist id="lotes">
+        <?for(var i = 0; i < list.length; i++){?>
+          <option value="<?=list[i];?>">
+        <?}?>
+      </datalist>
+
+      <label id = "labelListaMarca">Lote</label>
+      <select id = "listaMarca" class = "browser-default">
+      <option value = "" disabled selected>Escolha uma posição</option>
+
+      </select>
+
+      <label id = "labelListaProduto">Posição</label>
+      <select id = "listaProduto" class = "browser-default">
+      <option value = "" disabled selected>Escolha um produto</option>
+
+      </select>
+
+      <label id = "labelLinha">SIAD</label>
+      <input id = "Linha" type = "text" oninput = "CaixaAlta(event)">
+
+      <label id = "labelMarca">Lote</label>
+      <input id = "Marca" type = "text" oninput = "CaixaAlta(event)">
+
+      <label id = "labelProduto">Posição</label>
+      <input id = "Produto" type = "text" oninput = "CaixaAlta(event)"> 
+
+      <button id = "btnLimpar">LIMPAR</button>
+      <button id = "btnSalvar">SALVAR</button>
+      <button id = "btnEditar">EDITAR</button>
+      <button id = "btnExcluir">EXCLUIR</button> 
+
+    </div>
+
+  <?!=Chamar("FormProduto-js")?>
+
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloGraficoQtd")?>
+
+  </head>
+  <body id = "corpo">    
+
+    <label id = "labelData1">Data Inic.</label>
+    <input id = "data1" type = "date" onblur = "Filtro()">
+
+    <label id = "labelData2">Data Fin.</label>
+    <input id = "data2" type = "date" onblur = "Filtro()">
+
+    <label id = "labelLinha">SIAD</label>
+    <select id = "Linha" class = "browser-default">
+
+      <option value = "" disabled selected>Escolha um SIAD</option>
+
+      <?for(var i = 0; i < list.length; i++){?>
+
+        <option><?=list[i];?></option>
+
+      <?}?>
+
+    </select>
+
+    <label id = "labelMarca">Lote</label>
+    <select id = "Marca" class = "browser-default">
+
+      <option value = "" disabled selected>Escolha um lote</option>
+
+    </select>
+
+    <label id = "labelProduto">Posição</label>
+    <select id = "Produto" class = "browser-default">
+
+      <option value = "" disabled selected>Escolha uma posição</option>
+
+    </select>
+
+    <label id = "labelEntrada">Entrada</label>
+    <div id = "divEntrada"></div>
+
+    <label id = "labelSaida">Saída</label>
+    <div id = "divSaida"></div>
+
+    <label id = "labelSaldo">Saldo</label>
+    <div id = "divSaldo"></div>
+
+    <div id = "GraficoColunas"></div>
+    <div id = "GraficoLinhas"></div>
+
+    <?!=Chamar("GraficoQtd-js")?>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

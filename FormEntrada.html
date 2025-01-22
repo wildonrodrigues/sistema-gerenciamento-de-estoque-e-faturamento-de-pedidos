@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloEntrada")?>
+
+  </head>
+  <body> 
+
+    <div id = "CaixaMsg">
+      <div>
+        <div id = "TituloMsg"></div>
+        <div id = "CorpoMsg"></div>
+        <div id = "RodapeMsg"></div>
+      </div>
+    </div> 
+
+    <div id = "divObjetos">
+
+      <label id = "labelId">Id</label>
+      <input id = "Id" type = "text" value = "<?=Id?>">
+
+      <label id = "labelData">Data</label>
+      <input id = "Data" type = "date">
+
+      <script>
+      document.getElementById("Data").value = new Date().toISOString().substring(0, 10);
+      </script>
+
+      <label id = "labelLinha">SIAD</label>
+      <input id="listaLinha" type="text" list="lotes" class="browser-default">
+        <datalist id="lotes">
+          <?for(var i = 0; i < list.length; i++){?>
+            <option value="<?=list[i];?>">
+          <?}?>
+        </datalist>
+
+      <label id = "labelMarca">Lote</label>
+      <select id = "listaMarca" class = "browser-default">
+
+          <option value = "" disabled selected>Escolha um lote</option>
+
+      </select>
+
+      <label id = "labelProduto">Posição</label>
+      <select id = "listaProduto" class = "browser-default">
+
+          <option value = "" disabled selected>Escolha um Produto</option>
+          
+
+      </select> 
+
+      <label id="labelCod">Produto</label>
+      <input id="Cod" type="text" class="browser-default" disabled = "true">
+
+
+      <label id = "labelNf">Múltiplo</label> 
+      <input id = "Nf" type = "text" maxlength = "6">
+
+      <label id = "labelValor">Valor Total</label> 
+      <input id = "Valor" type = "text" disabled = "true"> 
+
+      <label id = "labelQtd">Qtd</label> 
+      <input id = "Qtd" type = "text"> 
+
+     <label id="labelPu">Valor.Un.</label>
+      <input id="Pu" type="text">
+
+      <label id = "labelObs">Validade</label> 
+      <input id = "Obs" type = "text">
+
+      <label id="labelElementoDespesa">E.D.</label>
+      <input id="ElementoDespesa" type="text">
+
+      <label id="labelUnidadeDistribuicao">Un. Distribuição</label>
+      <input id="UnidadeDistribuicao" type="text">
+
+      <label id="labelBloqueio">NF</label>
+      <input id="Bloqueio" type="text">
+
+      <label id="labelOutraObservacao">Obs.</label>
+      <input id="OutraObservacao" type="text">
+    
+      <button id = "btnLimpar">LIMPAR</button>
+      <button id = "btnPesquisar">PESQUISAR</button>
+      <button id = "btnEditar">EDITAR</button>
+      <button id = "btnSalvar">SALVAR</button>
+      <button id = "btnExcluir">EXCLUIR</button>
+
+    </div>  
+
+    <?!=Chamar("FormEntrada-js")?>
+    
+  </body>
+</html>

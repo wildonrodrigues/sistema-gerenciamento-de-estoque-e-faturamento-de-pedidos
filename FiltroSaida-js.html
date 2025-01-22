@@ -1,0 +1,617 @@
+<script>
+
+var CampoData1 = document.getElementById("data1");
+var CampoData2 = document.getElementById("data2");
+var CampoLinha = document.getElementById("Linha");
+var CampoMarca = document.getElementById("Marca");
+var CampoProduto = document.getElementById("Produto");
+var CampoIde = document.getElementById("Ide");
+var CampoCod = document.getElementById("Cod");
+
+var CaixaMsg = document.getElementById("CaixaMsg");
+var TituloMsg = document.getElementById("TituloMsg");
+var CorpoMsg = document.getElementById("CorpoMsg");
+var RodapeMsg = document.getElementById("RodapeMsg");
+
+var BtnFechar = '<button onclick = "Fechar()" style = "cursor:pointer; background-color:orange"><b> <font color = "black" size = "5px">Fechar</font></b></button>';
+
+function Fechar(){
+  CaixaMsg.style.display = "none";
+}
+
+function caixaMsgBox(m){
+
+  CaixaMsg.style.display = "block";
+  TituloMsg.innerHTML = "AVISO";
+  CorpoMsg.innerHTML = m;
+  RodapeMsg.innerHTML = BtnFechar;
+
+}
+
+CampoIde.addEventListener("keypress", Ver);
+CampoCod.addEventListener("keypress", Ver);
+
+function Ver(e){
+
+  var Caracteres = String.fromCharCode(e.keyCode);
+
+  var Permitir = '[0-9]';
+
+  if(Caracteres.match(Permitir)){
+    return true;
+    }else{
+    e.preventDefault();
+  }
+
+}
+
+function LimparLista(Campo,Opt,Vazio){
+
+  while(Campo.length){
+    Campo.remove(0);
+  }
+
+  var NovaOpcao = document.createElement("option");
+  var Texto = document.createTextNode(Opt);
+  NovaOpcao.appendChild(Texto);
+  Campo.insertBefore(NovaOpcao, Campo.lastChild);
+
+  Campo.options[0].disabled = true;
+
+  if(Vazio == "SIM"){
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(" ");
+    NovaOpcao.appendChild(Texto);
+    Campo.insertBefore(NovaOpcao, Campo.lastChild);
+  }
+
+}
+
+document.addEventListener("DOMContentLoaded", IniciarFormulario);
+
+var produtos;
+var dadosSaidas;
+
+function IniciarFormulario(){
+
+  google.script.run.withSuccessHandler(Retorno).buscaRegistros();
+
+  function Retorno(arrays){
+    
+    produtos = arrays.dadosProdutos.slice();
+    dadosSaidas = arrays.dadosSaidas.slice();
+
+    if(CampoData1.value == "" && CampoLinha.value == "" && CampoMarca.value == "" && CampoProduto.value == "" && CampoIde.value == "" && CampoCod.value == ""){
+
+      var data = new Date();
+      data.setDate(data.getDate()-30);
+
+      CampoData1.value = new Date(data).toISOString().substring(0,10);
+      CampoData2.value = new Date().toISOString().substring(0,10);
+
+    }
+
+    Filtro();
+
+  }
+
+}
+
+CampoLinha.addEventListener("change",CarregarMarcas);
+
+function CarregarMarcas(){
+
+  var Linha = CampoLinha.value;
+  var Marca = "";
+  Marcas(Linha,Marca);
+
+}
+
+function Marcas(Linha,Marca){
+
+  var Opt = "Escolha uma marca";
+  var Vazio = "SIM";
+  LimparLista(CampoMarca,Opt,Vazio);
+
+  var Opt = "Buscando produto";
+  var Vazio = "SIM";
+  LimparLista(CampoProduto,Opt,Vazio);   
+
+  if(Linha == "" || produtos == null){
+    return false;
+  }
+
+  var lista = produtos.filter(i => i[0] == Linha).map(i => i[1]);
+
+  var listaUnica = [...new Set(lista.flat())];
+
+  var listaMarcas = [];
+
+  for(var i = 0; i < listaUnica.length; i++){
+    listaMarcas.push([listaUnica[i]]);
+  }
+
+  lista.length = 0;
+  listaUnica.length = 0;
+
+  listaMarcas.sort();
+
+  listaMarcas.forEach(function(r){
+
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(r[0]);
+    NovaOpcao.appendChild(Texto);
+    CampoMarca.insertBefore(NovaOpcao, CampoMarca.lastChild);
+
+    if(r[0] == Marca){
+      CampoMarca.value = Marca;
+    }
+
+  });
+
+  listaMarcas.length = 0;
+
+}
+
+CampoMarca.addEventListener("change", CarregarProdutos);
+
+function CarregarProdutos(){
+
+  var Linha = CampoLinha.value;
+  var Marca = CampoMarca.value;
+  var Produto = "";
+  Produtos(Linha,Marca,Produto);
+
+}
+
+function Produtos(Linha,Marca,Produto){  
+
+  var Opt = "Buscando produto";
+  var Vazio = "SIM";
+  LimparLista(CampoProduto,Opt,Vazio);    
+
+  if(Linha == "" || Marca == "" || produtos == null){
+    return false;
+  }
+
+  var lista = produtos.filter(i => i[0] == Linha && i[1] == Marca).map(i => i[2]);
+
+  var listaUnica = [...new Set(lista.flat())];
+
+  var listaProdutos = [];
+
+  for(var i = 0; i < listaUnica.length; i++){
+    listaProdutos.push([listaUnica[i]]);
+  }
+
+  lista.length = 0;
+  listaUnica.length = 0;
+
+  listaProdutos.sort();
+
+  listaProdutos.forEach(function(r){
+
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(r[0]);
+    NovaOpcao.appendChild(Texto);
+    CampoProduto.insertBefore(NovaOpcao, CampoProduto.lastChild);
+
+    if(r[0] == Produto){
+      CampoProduto.value = Produto;
+    }
+
+  });
+
+  listaProdutos.length = 0;
+
+}
+
+function converteData(Data){
+
+  var dataQuebrada = Data.split("/");
+  var Dia = dataQuebrada[0];
+  var Mes = dataQuebrada[1];
+  var Ano = dataQuebrada[2];
+  var novaData = new Date(parseInt(Ano, 10),parseInt(Mes,10) - 1,parseInt(Dia,10));
+  return novaData;
+
+}
+
+CampoIde.addEventListener("keyup", ExecutarFiltro);
+CampoCod.addEventListener("keyup", ExecutarFiltro);
+
+function ExecutarFiltro(e){
+
+  var Tecla = e.which || e.keyCode;
+
+  if(Tecla == 13){
+    Filtro();
+  }
+
+}
+
+document.getElementById("btnFiltrar").addEventListener("click", Filtro);
+CampoLinha.addEventListener("change", Filtro);
+CampoMarca.addEventListener("change", Filtro);
+CampoProduto.addEventListener("change", Filtro);
+
+function Filtro(){
+
+  var CorpoTabela = document.getElementById("CorpoTabela");
+
+  while(CorpoTabela.hasChildNodes()){
+    CorpoTabela.removeChild(CorpoTabela.lastChild);
+  }
+
+  var dataInicial = CampoData1.value;
+
+  if(dataInicial.length > 0){
+    var dataQuebrada = dataInicial.split("-");
+    var Ano = dataQuebrada[0];
+    var Mes = dataQuebrada[1];
+    var Dia = dataQuebrada[2];
+    var dataInicial = Dia + "/" + Mes + "/" + Ano;
+  }
+
+  var dataFinal = CampoData2.value;
+
+  if(dataFinal.length > 0){
+    var dataQuebrada = dataFinal.split("-");
+    var Ano = dataQuebrada[0];
+    var Mes = dataQuebrada[1];
+    var Dia = dataQuebrada[2];
+    var dataFinal = Dia + "/" + Mes + "/" + Ano;
+  }
+
+  if(dataInicial.length == 0 && dataFinal.length != 0){
+    var dataInicial = dataFinal;
+  }
+
+  if(dataInicial.length != 0 && dataFinal.length == 0){
+    var dataFinal = dataInicial;
+  }
+
+  if(dataInicial.length == 0 && dataFinal.length == 0){
+    var dataInicial = "01/01/2020"
+    var dataFinal = "01/01/2050";
+  }
+
+  var DataInicial = converteData(dataInicial);
+  var DataFinal = converteData(dataFinal);
+
+  var Linha = CampoLinha.value;
+  var Marca = CampoMarca.value;
+  var Produto = CampoProduto.value;
+  var Ide = CampoIde.value;
+  var Cod = CampoCod.value;
+
+  if(Linha == "Escolha uma linha"){
+    var Linha = "";
+  }
+
+  if(Marca == "Escolha uma marca"){
+    var Marca = "";
+  }
+
+  if(Produto == "Escolha um produto"){
+    var Produto = "";
+  }
+
+  var dadosFiltro = dadosSaidas.filter(function(value, i, arr){
+
+    var Data = converteData(arr[i][1]);
+
+    return (Data >= DataInicial && Data <= DataFinal) &&
+    (Linha ? Linha == arr[i][4] : true) &&
+    (Marca ? Marca == arr[i][5] : true) &&
+    (Produto ? Produto == arr[i][6] : true) &&
+    (Ide ? Ide == arr[i][7] : true) &&
+    (Cod ? Cod == arr[i][13] : true);
+
+  });
+
+  if(dadosFiltro.length == 0){
+    var m = "NÃO EXISTEM DADOS PARA ESTE FILTRO!";
+    caixaMsgBox(m);
+    return false;
+  }
+
+  GerarTabela(dadosFiltro);
+
+}
+
+function GerarTabela(Dados){
+
+  var CorpoTabela = document.getElementById("CorpoTabela");
+
+  var TotalQtd = 0;
+  var TotalValor = 0;
+
+  Dados.forEach(function(r){
+
+    var Coluna1 = document.createElement("td");
+    Coluna1.textContent = r[0];
+    var Coluna2 = document.createElement("td");
+    Coluna2.textContent = r[1];
+    var Coluna3 = document.createElement("td");
+    Coluna3.textContent = r[4];
+    var Coluna4 = document.createElement("td");
+    Coluna4.textContent = r[5];
+    var Coluna5 = document.createElement("td");
+    Coluna5.textContent = r[6];
+    var Coluna6 = document.createElement("td");
+    Coluna6.textContent = r[7];
+
+    var Coluna7 = document.createElement("td");
+    Coluna7.textContent = parseFloat(r[8]).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+    var Coluna8 = document.createElement("td");
+    Coluna8.style.color = "DarkBlue";
+    Coluna8.textContent = parseFloat(r[9]).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+    var Coluna9 = document.createElement("td");
+    Coluna9.textContent = parseFloat(r[10]).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+
+    var Coluna10 = document.createElement("td");
+    Coluna10.textContent = r[11];
+    var Coluna11 = document.createElement("td");
+    Coluna11.textContent = r[12];
+    var Coluna12 = document.createElement("td");
+    Coluna12.textContent = r[13];
+    var Coluna13 = document.createElement("td");
+    Coluna13.textContent = r[15];
+    var Coluna14 = document.createElement("td");
+    Coluna14.textContent = r[16];
+
+    var Linha = document.createElement("tr");
+
+    Linha.appendChild(Coluna1);
+    Linha.appendChild(Coluna2);
+    Linha.appendChild(Coluna3);
+    Linha.appendChild(Coluna4);
+    Linha.appendChild(Coluna5);
+    Linha.appendChild(Coluna6);
+    Linha.appendChild(Coluna7);
+    Linha.appendChild(Coluna8);
+    Linha.appendChild(Coluna9);
+    Linha.appendChild(Coluna10);
+    Linha.appendChild(Coluna11);
+    Linha.appendChild(Coluna12);
+    Linha.appendChild(Coluna13);
+    Linha.appendChild(Coluna14);
+
+    CorpoTabela.appendChild(Linha);
+
+    TotalQtd = parseFloat(TotalQtd) + parseFloat(r[9]);
+    TotalValor = parseFloat(TotalValor) + parseFloat(r[10]);
+
+  });
+
+  TotalQtd =  parseFloat(TotalQtd).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+  
+  TotalValor =  parseFloat(TotalValor).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+
+  var Coluna1 = document.createElement("td");
+  Coluna1.textContent = "_";
+  var Coluna2 = document.createElement("td");
+  Coluna2.textContent = "TOTAL";
+  var Coluna3 = document.createElement("td");
+  Coluna3.textContent = "_";
+  var Coluna4 = document.createElement("td");
+  Coluna4.textContent = "_";
+  var Coluna5 = document.createElement("td");
+  Coluna5.textContent = "_";
+  var Coluna6 = document.createElement("td");
+  Coluna6.textContent = "_";
+
+  var Coluna7 = document.createElement("td");
+  Coluna7.textContent = "_";
+  var Coluna8 = document.createElement("td");
+  Coluna8.textContent = parseFloat(TotalQtd).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+  Coluna8.style.color = "DarkBlue";
+  var Coluna9 = document.createElement("td");
+  Coluna9.textContent = parseFloat(TotalValor).toLocaleString("pt-BR",{style:"decimal", decimal:"BRL"});
+
+  var Coluna10 = document.createElement("td");
+  Coluna10.textContent = "_";
+  var Coluna11 = document.createElement("td");
+  Coluna11.textContent = "_";
+  var Coluna12 = document.createElement("td");
+  Coluna12.textContent = "_";
+  var Coluna13 = document.createElement("td");
+  Coluna13.textContent = "_";
+  var Coluna14 = document.createElement("td");
+  Coluna14.textContent = "_";
+
+  var Linha = document.createElement("tr");
+
+  Linha.appendChild(Coluna1);
+  Linha.appendChild(Coluna2);
+  Linha.appendChild(Coluna3);
+  Linha.appendChild(Coluna4);
+  Linha.appendChild(Coluna5);
+  Linha.appendChild(Coluna6);
+  Linha.appendChild(Coluna7);
+  Linha.appendChild(Coluna8);
+  Linha.appendChild(Coluna9);
+  Linha.appendChild(Coluna10);
+  Linha.appendChild(Coluna11);
+  Linha.appendChild(Coluna12);
+  Linha.appendChild(Coluna13);
+  Linha.appendChild(Coluna14);
+
+  CorpoTabela.appendChild(Linha);
+
+  DCTabela();  
+
+}
+
+document.getElementById("btnLimpar").addEventListener("click", Limpar);
+
+function Limpar(){
+
+  CampoData1.value = "";
+  CampoData2.value = "";
+  CampoLinha.value = "";
+  CampoIde.value = "";
+  CampoCod.value = "";
+
+  var Opt = "Escolha uma marca";
+  var Vazio = "NÃO";
+  LimparLista(CampoMarca,Opt,Vazio);
+
+  var Opt = "Escolha um produto";
+  var Vazio = "NÃO";
+  LimparLista(CampoProduto,Opt,Vazio);
+
+  var CorpoTabela = document.getElementById("CorpoTabela");
+
+  while(CorpoTabela.hasChildNodes()){
+    CorpoTabela.removeChild(CorpoTabela.lastChild);
+  }
+
+}
+
+function sortTable(table, col, reverse) {
+
+  if (col == 0 || col == 1 || col == 5 || col == 6 || col == 7 || col == 8 || col == 9){    
+    return; 
+  }  
+
+  var tb = table.tBodies[0],  
+  tr = Array.prototype.slice.call(tb.rows, 0),
+  i;  
+
+  reverse = -((+reverse) || -1);
+
+  tr = tr.sort(function(a, b) {    
+
+    if (a.cells[col].textContent.trim() != "_"){
+    return reverse * (a.cells[col].textContent.trim()
+      .localeCompare(b.cells[col].textContent.trim()) 
+    );
+
+    }
+
+  });
+
+  for (i = 0; i < tr.length; ++i)  tb.appendChild(tr[i]);
+  
+}
+
+function makeSortable(table) {
+
+  var th = table.tHead,  
+    i;    
+
+  th && (th = th.rows[0]) && (th = th.cells);
+
+  if (th) i = th.length;
+
+  else return;
+  while (--i >= 0)(function(i) {
+    var dir = 1;
+    th[i].addEventListener('click', function() {
+      sortTable(table, i, (dir = 1 - dir))
+    });
+  }(i));
+
+}
+
+function makeAllSortable(parent) {
+  
+  parent = parent || document.body;
+  var t = parent.getElementsByTagName('table'),
+    i = t.length;     
+
+  while (--i >= 0) makeSortable(t[i]);
+}
+
+window.onload = function() {
+  makeAllSortable();
+};
+
+document.getElementById("btnPdf").addEventListener("click", PDF);
+
+function PDF(){
+
+  var divTabela = document.getElementById("divTabela").innerHTML;
+
+  var Estilo = "<style>";
+  Estilo = Estilo + "table {width: 100%;font: 12px Calibri;}";
+  Estilo = Estilo + "table, th, td {border: solid 1px #DDD;border-collapse: collapse;}";
+  Estilo = Estilo + "padding: 2px 3px;text-align: left;";
+  Estilo = Estilo + "</style>";
+
+  var Doc = window.open("", "", "height=700,width=900");
+  Doc.document.write("<html><head>");
+  Doc.document.write("<title>FILTRO SAÍDAS</title>");   
+  Doc.document.write(Estilo);
+  Doc.document.write("</head>");
+  Doc.document.write("<body>");
+  Doc.document.write(divTabela);
+  Doc.document.write("</body></html>");
+  Doc.print();
+
+}
+
+$(document).ready(function(){
+
+  $("#btnExcel").click(function(e){ 
+
+    e.preventDefault();       
+
+    var DivTabela = document.getElementById("divTabela");
+
+    var Dados = new Blob(["\ufeff" + DivTabela.outerHTML],{type:"application/vnd.ms-excel"});
+
+    var url = window.URL.createObjectURL(Dados);
+
+    var a = document.createElement("a");
+
+    a.href = url;
+
+    a.download = "Dados Filtro Saída";
+
+    a.click();
+
+  });
+
+});
+
+function DCTabela(){
+
+  var linhasTabela = document.querySelectorAll("#Tab tr");
+
+  linhasTabela.forEach(function(linha){
+
+    linha.addEventListener("dblclick", function(){
+
+      this.classList.toggle("selecionada");
+
+      var Id = this.cells[0].textContent;
+
+      if(Id != "_" && Id != "ID"){
+        google.script.run.withSuccessHandler().FormSaida(Id);
+      }
+
+    })
+
+  });
+
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

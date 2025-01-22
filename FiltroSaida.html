@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloFiltroSaida")?>
+
+  </head>
+  <body id = "corpo">
+
+    <div id = "CaixaMsg">
+      <div>
+        <div id = "TituloMsg"></div>
+        <div id = "CorpoMsg"></div>
+        <div id = "RodapeMsg"></div>
+      </div>
+    </div> 
+
+    <div id = "divCabecalho">
+
+      <label id = "labelData1">Data Inic.</label>
+      <input id = "data1" type = "date" onblur = "Filtro()">
+
+      <label id = "labelData2">Data Fin.</label>
+      <input id = "data2" type = "date" onblur = "Filtro()">
+
+      <label id = "labelLinha">SIAD</label>
+      <input id="Linha" type="text" list="lotes" class="browser-default">
+      <datalist id="lotes">
+        <?for(var i = 0; i < list.length; i++){?>
+          <option value="<?=list[i];?>">
+        <?}?>
+      </datalist>
+
+      <label id = "labelMarca">Lote</label>
+      <select id = "Marca" class = "browser-default">
+
+        <option value = "" disabled selected>Escolha um lote</option>
+
+      </select>
+
+      <label id = "labelProduto">Posição</label>
+      <select id = "Produto" class = "browser-default">
+
+        <option value = "" disabled selected>Escolha uma posição</option>
+
+      </select>
+
+      <label id = "labelIde">Ide</label>
+      <input id = "Ide" type = "text">
+
+      <label id = "labelCod">Pedido</label>
+      <input id = "Cod" type = "text" class ="text">
+
+      <button id = "btnFiltrar">FILTRAR</button> 
+      <button id = "btnLimpar">LIMPAR</button> 
+      <button id = "btnPdf">PDF</button>
+      <button id = "btnExcel">EXCEL</button> 
+
+      </div>     
+
+      <div id = "divTabela">
+
+        <table id = "Tab" width = "100%" border = "1px" cellpadding = "1px">
+
+          <thead id = "Cabecalho">
+            <tr>
+              <th width="4%">ID</th>
+              <th width="5%">DATA</th>
+              <th width="7%">SIAD</th>
+              <th width="7%">LOTE</th>
+              <th width="6%">POSIÇÃO</th>
+              <th width="4%">IDE ENT.</th>
+              <th width="6%">VALOR UN.</th>
+              <th width="6%"style = "background-color: #87CEFA;">QTD</th>
+              <th width="8%">VALOR TOTAL</th>
+              <th width="21%">PRODUTO</th>
+              <th width="10%">VAL/OBS</th>
+              <th width="6%">PEDIDO</th>
+              <th width="5%">UD</th>
+              <th width="5%">ED</th>
+            </tr>
+          </thead>
+
+          <tbody id = "CorpoTabela">
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 
+
+    <?!=Chamar("FiltroSaida-js")?>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

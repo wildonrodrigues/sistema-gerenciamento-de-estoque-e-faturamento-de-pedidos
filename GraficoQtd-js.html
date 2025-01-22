@@ -1,0 +1,448 @@
+<script>
+
+var CampoData1 = document.getElementById("data1");
+var CampoData2 = document.getElementById("data2");
+var CampoLinha = document.getElementById("Linha");
+var CampoMarca = document.getElementById("Marca");
+var CampoProduto = document.getElementById("Produto");
+
+var DivGrColunas = document.getElementById("GraficoColunas");
+var DivGrLinhas = document.getElementById("GraficoLinhas");
+var DivEntrada = document.getElementById("divEntrada");
+var DivSaida = document.getElementById("divSaida");
+var DivSaldo = document.getElementById("divSaldo");
+
+function LimparLista(Campo,Opt,Vazio){
+
+  while(Campo.length){
+    Campo.remove(0);
+  }
+
+  var NovaOpcao = document.createElement("option");
+  var Texto = document.createTextNode(Opt);
+  NovaOpcao.appendChild(Texto);
+  Campo.insertBefore(NovaOpcao, Campo.lastChild);
+
+  Campo.options[0].disabled = true;
+
+  if(Vazio == "SIM"){
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(" ");
+    NovaOpcao.appendChild(Texto);
+    Campo.insertBefore(NovaOpcao, Campo.lastChild);
+  }
+
+}
+
+document.addEventListener("DOMContentLoaded", IniciarFormulario);
+
+var produtos;
+var dadosSaidas;
+var dadosEntradas;
+
+function IniciarFormulario(){
+
+  google.script.run.withSuccessHandler(Retorno).buscaRegistrosRel();
+
+  function Retorno(arrays){
+    produtos = arrays.dadosProdutos.slice();
+    dadosSaidas = arrays.dadosSaidas.slice();
+    dadosEntradas = arrays.dadosEntradas.slice();
+    Filtro();     
+  }
+
+}
+
+CampoLinha.addEventListener("change",CarregarMarcas);
+
+function CarregarMarcas(){
+
+  var Linha = CampoLinha.value;
+  var Marca = "";
+  Marcas(Linha,Marca);
+
+}
+
+function Marcas(Linha,Marca){
+
+  var Opt = "Escolha uma marca";
+  var Vazio = "SIM";
+  LimparLista(CampoMarca,Opt,Vazio);
+
+  var Opt = "Escolha um produto";
+  var Vazio = "SIM";
+  LimparLista(CampoProduto,Opt,Vazio);   
+
+  if(Linha == "" || produtos == null){
+    return false;
+  }
+
+  var lista = produtos.filter(i => i[0] == Linha).map(i => i[1]);
+
+  var listaUnica = [...new Set(lista.flat())];
+
+  var listaMarcas = [];
+
+  for(var i = 0; i < listaUnica.length; i++){
+    listaMarcas.push([listaUnica[i]]);
+  }
+
+  lista.length = 0;
+  listaUnica.length = 0;
+
+  listaMarcas.sort();
+
+  listaMarcas.forEach(function(r){
+
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(r[0]);
+    NovaOpcao.appendChild(Texto);
+    CampoMarca.insertBefore(NovaOpcao, CampoMarca.lastChild);
+
+    if(r[0] == Marca){
+      CampoMarca.value = Marca;
+    }
+
+  });
+
+  listaMarcas.length = 0;
+
+}
+
+CampoMarca.addEventListener("change", CarregarProdutos);
+
+function CarregarProdutos(){
+
+  var Linha = CampoLinha.value;
+  var Marca = CampoMarca.value;
+  var Produto = "";
+  Produtos(Linha,Marca,Produto);
+
+}
+
+function Produtos(Linha,Marca,Produto){  
+
+  var Opt = "Escolha um produto";
+  var Vazio = "SIM";
+  LimparLista(CampoProduto,Opt,Vazio);    
+
+  if(Linha == "" || Marca == "" || produtos == null){
+    return false;
+  }
+
+  var lista = produtos.filter(i => i[0] == Linha && i[1] == Marca).map(i => i[2]);
+
+  var listaUnica = [...new Set(lista.flat())];
+
+  var listaProdutos = [];
+
+  for(var i = 0; i < listaUnica.length; i++){
+    listaProdutos.push([listaUnica[i]]);
+  }
+
+  lista.length = 0;
+  listaUnica.length = 0;
+
+  listaProdutos.sort();
+
+  listaProdutos.forEach(function(r){
+
+    var NovaOpcao = document.createElement("option");
+    var Texto = document.createTextNode(r[0]);
+    NovaOpcao.appendChild(Texto);
+    CampoProduto.insertBefore(NovaOpcao, CampoProduto.lastChild);
+
+    if(r[0] == Produto){
+      CampoProduto.value = Produto;
+    }
+
+  });
+
+  listaProdutos.length = 0;
+
+}
+
+function converteData(Data){
+
+  var dataQuebrada = Data.split("/");
+  var Dia = dataQuebrada[0];
+  var Mes = dataQuebrada[1];
+  var Ano = dataQuebrada[2];
+  var novaData = new Date(parseInt(Ano, 10),parseInt(Mes,10) - 1,parseInt(Dia,10));
+  return novaData;
+
+}
+
+CampoLinha.addEventListener("change", Filtro);
+CampoMarca.addEventListener("change", Filtro);
+CampoProduto.addEventListener("change", Filtro);
+
+function Filtro(){ 
+
+  DivGrColunas.innerHTML = "";
+  DivGrLinhas.innerHTML = "";
+  DivEntrada.innerHTML = "";
+  DivSaida.innerHTML = "";
+  DivSaldo.innerHTML = ""; 
+
+  var dataInicial = CampoData1.value;
+
+  if(dataInicial.length > 0){
+    var dataQuebrada = dataInicial.split("-");
+    var Ano = dataQuebrada[0];
+    var Mes = dataQuebrada[1];
+    var Dia = dataQuebrada[2];
+    var dataInicial = Dia + "/" + Mes + "/" + Ano;
+  }
+
+  var dataFinal = CampoData2.value;
+
+  if(dataFinal.length > 0){
+    var dataQuebrada = dataFinal.split("-");
+    var Ano = dataQuebrada[0];
+    var Mes = dataQuebrada[1];
+    var Dia = dataQuebrada[2];
+    var dataFinal = Dia + "/" + Mes + "/" + Ano;
+  }
+
+  if(dataInicial.length == 0 && dataFinal.length != 0){
+    var dataInicial = dataFinal;
+  }
+
+  if(dataInicial.length != 0 && dataFinal.length == 0){
+    var dataFinal = dataInicial;
+  }
+
+  if(dataInicial.length == 0 && dataFinal.length == 0){
+    var dataInicial = "01/01/2020"
+    var dataFinal = "01/01/2050";
+  }
+
+  var DataInicial = converteData(dataInicial);
+  var DataFinal = converteData(dataFinal);
+
+  var Linha = CampoLinha.value;
+  var Marca = CampoMarca.value;
+  var Produto = CampoProduto.value;  
+
+  if(Linha == "Escolha uma linha"){
+    var Linha = "";
+  }
+
+  if(Marca == "Escolha uma marca"){
+    var Marca = "";
+  }
+
+  if(Produto == "Escolha um produto"){
+    var Produto = "";
+  }  
+
+  var filtroEntradas = dadosEntradas.filter(function(value, i, arr){
+
+    var Data = converteData(arr[i][1]);
+
+    return (Data >= DataInicial && Data <= DataFinal) &&
+    (Linha ? Linha == arr[i][4] : true) &&
+    (Marca ? Marca == arr[i][5] : true) &&
+    (Produto ? Produto == arr[i][6] : true);
+
+  });  
+
+  var filtroSaidas = dadosSaidas.filter(function(value, i, arr){
+
+    var Data = converteData(arr[i][1]);
+
+    return (Data >= DataInicial && Data <= DataFinal) &&
+    (Linha ? Linha == arr[i][4] : true) &&
+    (Marca ? Marca == arr[i][5] : true) &&
+    (Produto ? Produto == arr[i][6] : true);
+
+  }); 
+
+  var EntradaQtd = 0;
+
+  for(var i = 0; i < filtroEntradas.length; i++){
+
+    if(filtroEntradas[i][10] != ""){
+      EntradaQtd = parseFloat(EntradaQtd) + parseFloat(filtroEntradas[i][10]);
+    }
+
+  }
+
+  var SaidaQtd = 0;
+
+  for(var i = 0; i < filtroSaidas.length; i++){
+
+    if(filtroSaidas[i][9] != ""){
+      SaidaQtd = parseFloat(SaidaQtd) + parseFloat(filtroSaidas[i][9]);
+    }
+
+  }
+
+  var SaldoQtd = parseFloat(EntradaQtd) - parseFloat(SaidaQtd);
+
+  var dadosGrColuna = new Array(["ESTOQUE", "QTD."], ["Entrada", EntradaQtd], ["Saida", SaidaQtd], ["Saldo", SaldoQtd]);
+
+  GraficoColunas(dadosGrColuna);
+
+  var MesesGrafico = new Array(["MESES", "ENTRADA", "SAÍDA", "SALDO"],["JAN.", "", "", ""],["FEV.", "", "", ""], ["MAR.", "", "", ""], ["ABR.", "", "", ""], ["MAI.", "", "", ""], ["JUN.", "", "", ""], ["JUL.", "", "", ""], ["AGO.", "", "", ""], ["SET.", "", "", ""], ["OUT.", "", "", ""], ["NOV.", "", "", ""], ["DEZ.", "", "", ""]);
+
+  var listaMeses = new Array(["JANEIRO"], ["FEVEREIRO"], ["MARÇO"], ["ABRIL"], ["MAIO"], ["JUNHO"], ["JULHO"], ["AGOSTO"], ["SETEMBRO"], ["OUTUBRO"], ["NOVEMBRO"], ["DEZEMBRO"]);
+
+  for(var linha = 0; linha < listaMeses.length; linha ++){
+
+    var Mes = listaMeses[linha][0];
+    var EntradaQtd = 0;
+    var SaidaQtd = 0;
+
+    for(var i = 0; i < filtroEntradas.length; i++){
+      if(filtroEntradas[i][2] == Mes && filtroEntradas[i][10] != ""){
+        EntradaQtd = parseFloat(EntradaQtd) + parseFloat(filtroEntradas[i][10]);
+      }
+    }
+
+    for(var i = 0; i < filtroSaidas.length; i++){
+      if(filtroSaidas[i][2] == Mes && filtroSaidas[i][9] != ""){
+        SaidaQtd = parseFloat(SaidaQtd) + parseFloat(filtroSaidas[i][9]);
+      }
+    }
+
+    var SaldoQtd = parseFloat(EntradaQtd) - parseFloat(SaidaQtd);
+
+    MesesGrafico[linha + 1][1] = EntradaQtd;
+    MesesGrafico[linha + 1][2] = SaidaQtd;
+    MesesGrafico[linha + 1][3] = SaldoQtd;
+
+  }
+
+  GraficoLinhas(MesesGrafico);
+
+  listaMeses.length = 0;
+  filtroEntradas.length = 0;
+  filtroSaidas.length = 0;
+
+}
+
+
+google.load('visualization', '1', {packages: ['corechart'], 'language': 'pt'});
+
+function GraficoColunas(Dados){
+
+var Formatar = {
+
+  title:"ESTOQUE",
+  titleTextStyle:{
+    color: "#1A237E",
+    fontSize: 14,
+    bold: true,
+  },
+
+  legend: "none",
+  width: 370,
+  height: 380,
+  colors: ["green"],
+  chartArea: {"backgroundColor":"#D3D3D3"},
+
+  hAxis:{
+    textStyle:{
+      fontSize: 16,
+      bold: true,
+    },
+  },
+
+  vAxis:{
+    textStyle:{
+      color: "#000000",
+      fontSize: 12,
+      bold: true,
+    },
+  },
+
+}
+
+var dados = google.visualization.arrayToDataTable(Dados, false);
+
+Grafico = new google.visualization.ColumnChart(DivGrColunas);
+
+Grafico.draw(dados, Formatar);
+
+DivEntrada.innerHTML = Dados[1][1];
+DivSaida.innerHTML = Dados[2][1];
+DivSaldo.innerHTML = Dados[3][1];
+
+Dados.length = 0;
+  
+}
+
+function GraficoLinhas(Dados){
+
+  var Formatar = {
+
+    title: "ESTOQUE MENSAL",
+    titleTextStyle: {
+      color: "#1A237E",
+      fontSize: 14,
+      bold: true,
+    },
+
+    legend: "none",
+    width: 690,
+    height: 380,
+
+    hAxis:{
+
+      textStyle:{
+        color: "#01579B",
+        fontSize: 9,
+        fontName: "Arial",
+        bold: true,
+        italic: true,
+      },
+
+    }, 
+
+    vAxis:{
+
+      title: "QTD",
+      titleTextStyle:{
+        color: "#1A237E",
+        fontSize: 14,
+        bold: true,
+      },
+
+      textStyle:{
+        color: "#1A237E",
+        fontSize: 12,
+        bold: true,
+      },
+
+    }, 
+
+  }
+
+  var Dados = google.visualization.arrayToDataTable(Dados, false);
+
+  Grafico = new google.visualization.LineChart(DivGrLinhas);
+
+  Grafico.draw(Dados, Formatar);
+
+  Dados.length = 0;  
+  
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

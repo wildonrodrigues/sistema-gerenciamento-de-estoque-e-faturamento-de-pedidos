@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloRelatorio")?>
+
+  </head>
+  <body id = "corpo">
+
+    <div id = "CaixaMsg">
+      <div>
+        <div id = "TituloMsg"></div>
+        <div id = "CorpoMsg"></div>
+        <div id = "RodapeMsg"></div>
+      </div>
+    </div> 
+
+    <div id = "divCabecalho">
+
+      <label id = "labelData1">Data Inic.</label>
+      <input id = "data1" type = "date" onblur = "Filtro()">
+
+      <label id = "labelData2">Data Fin.</label>
+      <input id = "data2" type = "date" onblur = "Filtro()">
+
+      <label id = "labelLinha">SIAD</label>
+       <input id="Linha" type="text" list="lotes" class="browser-default">
+      <datalist id="lotes">
+        <?for(var i = 0; i < list.length; i++){?>
+          <option value="<?=list[i];?>">
+        <?}?>
+      </datalist>
+             
+      <label id = "labelMarca">Lote</label>
+      <select id = "Marca" class = "browser-default">
+
+        <option value = "" disabled selected>Escolha uma posição</option>
+
+      </select>
+
+      <label id = "labelProduto">Posição</label>
+      <select id = "Produto" class = "browser-default">
+
+        <option value = "" disabled selected>Escolha um produto</option>
+
+      </select>      
+      
+      
+      <button id = "btnFiltrar">FILTRAR</button> 
+      <button id = "btnLimpar">LIMPAR</button> 
+      <button id = "btnPdf">PDF</button>
+      <button id = "btnExcel">EXCEL</button> 
+
+      <input type="checkbox" id="ocultarSaldosVazios" onclick="ocultarSaldos()">
+      <label id = "SaldosVazios">Ocultar Saldos Vazios</label>
+      
+      </div>     
+
+      <div id = "divTabela">
+
+        <table id = "Tab" width = "100%" border = "1px" cellpadding = "1px">
+
+          <thead id = "Cabecalho">
+            <tr>
+              <th width="7%">SIAD</th>
+              <th width="7%">LOTE</th>
+              <th width="7%">POSIÇÃO</th>
+              <th width="7%">ENTRADA QTD</th>
+              <th width="7%">ENTRADA R$</th>
+              <th width="7%">SAÍDA QTD</th>
+              <th width="7%">SAÍDA R$</th>
+              <th width="7%"style = "background-color: #87CEFA;"> QTD RESTANTE</th>
+              <th width="6%">SALDO R$</th>
+              <th width="22%">PRODUTO</th>
+              <th width="6%">VALIDADE</th> 
+                          
+            </tr>
+          </thead>
+
+          <tbody id = "CorpoTabela">
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 
+
+    <?!=Chamar("Relatorio-js")?>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

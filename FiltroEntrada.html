@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!=Chamar("EstiloFiltroEntrada")?>
+
+  </head>
+  <body id="corpo">
+
+    <div id="CaixaMsg">
+      <div>
+        <div id="TituloMsg"></div>
+        <div id="CorpoMsg"></div>
+        <div id="RodapeMsg"></div>
+      </div>
+    </div> 
+
+    <div id="divObjetos"> 
+
+      <div id="divCabecalho">    
+
+        <label id="labelData1">Data Inic.</label>
+        <input id="data1" type="date" onblur="Filtro()">
+
+        <script>
+          var Data = "";       
+          if(Data != ""){
+            document.getElementById("data1").value = new Date(Data).toISOString().substring(0,10);
+          }
+        </script>
+
+        <label id="labelData2">Data Fin.</label>
+        <input id="data2" type="date" onblur="Filtro()"> 
+
+        <label id="labelLinha">SIAD</label>
+        <input id="Linha" type="text" list="lotes" class="browser-default">
+        <datalist id="lotes">
+          <?for(var i = 0; i < list.length; i++){?>
+          <option value="<?=list[i];?>">
+          <?}?>
+        </datalist>
+
+        <label id="labelMarca">LOTE</label>
+        <select id = "Marca" class = "browser-default">
+
+          <option value = "" disabled selected>Escolha um lote </option>
+
+      </select> 
+         
+        <label id="labelProduto">POSIÇÃO</label> 
+        <select id="Produto" class="browser-default">
+          <option value="" disabled selected>Escolha uma posição</option>
+        </select> 
+
+        <label id="labelBloqueio">NOTA FISCAL</label>
+        <input id="Bloqueio" type="text" value="" maxlength="20" onblur="Filtro()">
+
+        <label id="labelCod">PRODUTO</label>
+        <input id="Cod" type="text" value="" onblur="Filtro()">
+
+        <button id="btnFiltrar">FILTRAR</button>
+        <button id="btnLimpar">LIMPAR</button> 
+        <button id="btnPdf">PDF</button>      
+        <button id="btnExcel">EXCEL</button> 
+
+      </div>   
+
+      <div id="divTabela">
+
+        <table id="Tab" width="100%" border="1px" cellpadding="1px">
+          <thead>
+            <tr>
+              <th width="4%">ID</th>
+              <th width="7%">DATA</th>
+              <th width="10%">SIAD</th>
+              <th width="10%">LOTE</th>
+              <th width="7%">POSIÇÃO</th>
+              <th width="22%">PRODUTO</th>
+              <th width="6%">Qtd Caixa</th>
+              <th width="7%">VALOR</th>
+              <th width="6%"style = "background-color: #87CEFA;">QTD</th>
+              <th width="7%">P. UNID.</th>
+              <th width="8%">VALIDADE</th>
+              <th width="8%">NF</th>
+            </tr>
+          </thead>
+          <tbody id="CorpoTabela">
+          </tbody>
+        </table>
+
+      </div>
+
+    </div> 
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>  
+    
+    <?!=Chamar("FiltroEntrada-js")?>
+
+  </body>
+</html>

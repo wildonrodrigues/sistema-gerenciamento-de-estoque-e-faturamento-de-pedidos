@@ -146,6 +146,7 @@ function CaixaAlta(e){
 BtnSalvar.addEventListener("click", Salvar);
 
 function Salvar(){
+
   BtnSalvar.disabled = true;
 
   var Linha = CampoLinha.value;
@@ -169,24 +170,21 @@ function Salvar(){
     Produto: Produto,
   }
 
-  google.script.run
-    .withSuccessHandler(Retorno)
-    .withFailureHandler(function(error) {
-      BtnSalvar.disabled = false;
-      caixaMsgBox("Erro ao salvar: " + error);
-    })
-    .SalvarProduto(Dados);
+  google.script.run.withSuccessHandler(Retorno).SalvarProduto(Dados);
 
   function Retorno(r){
-    BtnSalvar.disabled = false;  // Primeiro reativa o botão
+
     var m = r;
     caixaMsgBox(m);
-    
-    if(r == "REGISTRADO COM SUCESSO!"){
-      Limpar();
-    }
+    Limpar();
+
+    BtnSalvar.disabled = false;
+
   }
-}function AtualizarLinhas(){
+
+}
+
+function AtualizarLinhas(){
 
   var Opt = "Escolha uma linha";
   var Vazio = "NÃO";
